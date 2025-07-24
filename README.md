@@ -53,7 +53,7 @@ This repository demonstrates a full end‑to‑end DevOps pipeline for the Finan
 
 1. **Clone**
    ```bash
-   git clone https://github.com/your-org/durga-analytics-devops.git
+   git clone https://github.com/sumitgautam579/Financial_Service_INFRA.git
    cd Financial_Service_INFRA
    ```
 
