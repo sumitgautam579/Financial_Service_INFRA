@@ -15,7 +15,7 @@ This repository demonstrates a full end‑to‑end DevOps pipeline for the Finan
 ## 🔧 Prerequisites
 
 - AWS account (Free‑Tier enabled)
-- One EC2 t2.micro with Kind installed
+- One EC2 t2.medium with Kind installed
 - Docker Hub 
 - Git, Jenkins, Ansible installed locally
 
