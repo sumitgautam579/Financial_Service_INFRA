@@ -1,6 +1,6 @@
 ---
 - name: Bootstrap Kubernetes & Core Services
-  hosts: k8s
+  hosts: all
   become: yes
   vars_files:
     - ../vars.yml
@@ -24,13 +24,9 @@
         state: started
         enabled: true
 
-  roles:
-    - Kind-install
-    - docker-registry
-
   tasks:
     - name: Create Kind cluster if not exists
-      command: kind create cluster --name Financial_service
+      command: kind create cluster --name financial-service
       args:
         creates: "{{ lookup('env','HOME') }}/.kube/config"
 
@@ -40,7 +36,7 @@
         dest: "/home/{{ ansible_user }}/.kube/config"
         owner: "{{ ansible_user }}"
         mode: '0600'
-
+        
     - name: Add Prometheus Helm repo
       shell: |
         helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
