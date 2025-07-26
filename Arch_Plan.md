@@ -16,10 +16,9 @@
 
  * Route 53 + ACM for DNS & TLS -->
 
-<kbd>![image](https://github.com/sumitgautam579/BANK_infra/blob/main/Asset/arch_infra.png)</kbd>
+![Financial Service Platform Architecture](Asset\/arch_infra.png)
 
-
-Here’s a high-level walkthrough of the components and how they fit together to work as Financial Service Platform:
+ ####  Below is a high-level overview of the components and how they integrate to function as a financial services platform:
 
 ## Networking & Edge
 

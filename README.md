@@ -1,13 +1,13 @@
 # Financial Service Platform DevOps Blueprint
 
-This repository demonstrates a full end‑to‑end DevOps pipeline for the Financial Service Platform use case—using AWS Free‑Tier + one EC2 instance. 
+This repository demonstrates a full end‑to‑end DevOps pipeline for the Financial Service Platform use case—using AWS Free‑Tier + EC2 instance. 
 
 - **Infrastructure as Code**: Ansible
 - **Containerization**: Docker, Helm, Kubernetes (Kind)
 - **CI/CD**: Jenkins (Pipeline as Code)
 - **Quality & Security**: SonarQube, Fortify (AppScan)
 - **Monitoring & SLAs**: Prometheus, Grafana, Nagios
-- **Messaging**: Kafka, Zookeeper
+- **Messaging & Logging**: Kafka, Zookeeper, Fluentd
 - **Storage & Databases**: S3, RDS (MySQL)
 
 ---
@@ -15,10 +15,16 @@ This repository demonstrates a full end‑to‑end DevOps pipeline for the Finan
 ## 🔧 Prerequisites
 
 - AWS account (Free‑Tier enabled)
-- One EC2 t2.micro with Kind installed
+- One EC2 t2.medium with Kind installed
 - Docker Hub 
 - Git, Jenkins, Ansible installed locally
 
+
+## 🏗️ Architecture Plan
+
+* The detailed architecture plan is available in this repository:
+  
+   - [Arch_Plan.md](Arch_Plan.md)
 
 ## 📁 Repository Structure
 
@@ -51,13 +57,17 @@ This repository demonstrates a full end‑to‑end DevOps pipeline for the Finan
 
 ## 🚀 Getting Started
 
-1. **Clone**
+1. **Fork this repository**
+    - Click the Fork button [![Fork me on GitHub](https://img.shields.io/badge/Fork%20me-blue.svg)](https://github.com/sumitgautam579/Financial_Service_INFRA.git)
+
+2. **Clone**
+ 
    ```bash
    git clone https://github.com/sumitgautam579/Financial_Service_INFRA.git
    cd Financial_Service_INFRA
    ```
 
-2. **Provision AWS Infrastructure** via Ansible:
+3. **Provision AWS Infrastructure** via Ansible:
    ```bash
    docker build -t ansible-runner:latest ./docker/ansible-runner
    docker run --rm -e AWS_PROFILE=infra-admin \
@@ -66,13 +76,13 @@ This repository demonstrates a full end‑to‑end DevOps pipeline for the Finan
      ansible-playbook /ansible/playbooks/infra.yml
    ```
 
-3. **Install Kind & Core Services**:
+4. **Install Kind & Core Services**:
    ```bash
    ansible-playbook --inventory ansible/inventory.ini \
      ansible/playbooks/apps.yml
    ```
 
-4. **Push Microservice Images**
+5. **Push Microservice Images**
    ```bash
    cd helm/analytics-api
    docker build -t yourhub/analytics-api:v1 .
@@ -80,11 +90,11 @@ This repository demonstrates a full end‑to‑end DevOps pipeline for the Finan
    helm upgrade --install analytics-api .
    ```
 
-5. **Wire Up Jenkins Pipeline**
+6. **Wire Up Jenkins Pipeline**
    - In **jenkins/**, customize `Jenkinsfile` with your repo and credentials
    - Create a Multibranch Pipeline job in Jenkins pointing to this repo
 
-6. **Import Grafana Dashboards & SLAs**
+7. **Import Grafana Dashboards & SLAs**
    ```bash
    kubectl create configmap grafana-dashboards \
      --from-file=grafana/dashboards/ \
@@ -110,6 +120,7 @@ This repository demonstrates a full end‑to‑end DevOps pipeline for the Finan
 ## 🤝 Contributing
 
 Pull requests welcome. Please file an issue if you find bugs or want enhancements.
+
 
 ---
 
