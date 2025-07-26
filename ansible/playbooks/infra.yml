@@ -1,0 +1,134 @@
+---
+- name: Provision AWS Networking & EC2
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - ../vars.yml
+
+  tasks:
+
+    - name: Ensure the VPC exists
+      amazon.aws.ec2_vpc_net:
+        name: "{{ vpc_name }}"
+        cidr_block: "{{ vpc_cidr }}"
+        region: "{{ region }}"
+        state: present
+        resource_tags: "{{ tags }}"
+      register: vpc
+
+    - name: Ensure the Internet Gateway exists
+      amazon.aws.ec2_vpc_igw:
+        vpc_id: "{{ vpc.vpc.id }}"
+        state: present
+        tags: "{{ tags }}"
+        region: "{{ region }}"
+      register: igw
+
+    - name: Ensure the Public Subnet exists
+      amazon.aws.ec2_vpc_subnet:
+        vpc_id: "{{ vpc.vpc.id }}"
+        cidr: "{{ public_subnet_cidr }}"
+        az: "{{ availability_zone }}"
+        map_public: yes
+        region: "{{ region }}"
+        state: present
+        resource_tags: "{{ tags }}"
+      register: public_subnet
+
+    - name: Ensure the Private Subnet exists
+      amazon.aws.ec2_vpc_subnet:
+        vpc_id: "{{ vpc.vpc.id }}"
+        cidr: "{{ private_subnet_cidr }}"
+        az: "{{ availability_zone }}"
+        map_public: no
+        region: "{{ region }}"
+        state: present
+        resource_tags: "{{ tags }}"
+      register: private_subnet
+
+    - name: Create Public Route Table
+      amazon.aws.ec2_vpc_route_table:
+        vpc_id: "{{ vpc.vpc.id }}"
+        tags: "{{ tags }}"
+        state: present
+        region: "{{ region }}"
+      register: public_rt
+
+    - name: Create default route to IGW in Public RT
+      amazon.aws.ec2_vpc_route:
+        route_table_id: "{{ public_rt.route_table.id }}"
+        destination_cidr_block: "0.0.0.0/0"
+        gateway_id: "{{ igw.igw.id }}"
+        state: present
+        region: "{{ region }}"
+
+    - name: Associate Public RT with Public Subnet
+      amazon.aws.ec2_vpc_route_table:
+        route_table_id: "{{ public_rt.route_table.id }}"
+        subnets:
+          - "{{ public_subnet.subnet.id }}"
+        state: present
+        region: "{{ region }}"
+
+    - name: Create Security Group for EC2
+      amazon.aws.ec2_group:
+        name: "{{ ec2_security_group }}"
+        description: "Allow SSH, HTTP, HTTPS"
+        vpc_id: "{{ vpc.vpc.id }}"
+        region: "{{ region }}"
+        state: present
+        tags: "{{ tags }}"
+      register: ec2_sg
+
+    - name: Authorize SSH from my IP
+      amazon.aws.ec2_group:
+        name: "{{ ec2_security_group }}"
+        rules:
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: "{{ ssh_cidr }}"
+        purge_rules: false
+        purge_rules_egress: false
+        region: "{{ region }}"
+
+    - name: Authorize HTTP from anywhere
+      amazon.aws.ec2_group:
+        name: "{{ ec2_security_group }}"
+        rules:
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            cidr_ip: "0.0.0.0/0"
+        purge_rules: false
+        region: "{{ region }}"
+
+    - name: Authorize HTTPS from anywhere
+      amazon.aws.ec2_group:
+        name: "{{ ec2_security_group }}"
+        rules:
+          - proto: tcp
+            from_port: 443
+            to_port: 443
+            cidr_ip: "0.0.0.0/0"
+        purge_rules: false
+        region: "{{ region }}"
+
+    - name: Launch EC2 instance(s)
+      amazon.aws.ec2:
+        key_name: "{{ key_pair }}"
+        instance_type: "{{ ec2_instance_type }}"
+        image_id: "{{ ec2_ami }}"
+        wait: yes
+        count: "{{ ec2_instance_count }}"
+        vpc_subnet_id: "{{ public_subnet.subnet.id }}"
+        group_id: "{{ ec2_sg.group_id }}"
+        assign_public_ip: yes
+        instance_tags: "{{ tags | combine({'Name': ec2_instance_name}) }}"
+        region: "{{ region }}"
+      register: ec2
+
+    - name: Show launched EC2 details
+      debug:
+        var: ec2.instances

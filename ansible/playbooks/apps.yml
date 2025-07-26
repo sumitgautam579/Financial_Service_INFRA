@@ -1,0 +1,72 @@
+---
+- name: Bootstrap Kubernetes & Core Services
+  hosts: k8s
+  become: yes
+  vars_files:
+    - ../vars.yml
+
+  pre_tasks:
+    - name: Ensure Docker is installed
+      apt:
+        name: docker.io
+        state: present
+      when: ansible_os_family == 'Debian'
+
+    - name: Ensure Docker is installed
+      yum:
+        name: docker
+        state: present
+      when: ansible_os_family == 'RedHat'
+
+    - name: Start & enable Docker service
+      service:
+        name: docker
+        state: started
+        enabled: true
+
+  roles:
+    - Kind-install
+    - docker-registry
+
+  tasks:
+    - name: Create Kind cluster if not exists
+      command: kind create cluster --name Financial_service
+      args:
+        creates: "{{ lookup('env','HOME') }}/.kube/config"
+
+    - name: Export kubeconfig to user home
+      copy:
+        src: "{{ lookup('env','HOME') }}/.kube/config"
+        dest: "/home/{{ ansible_user }}/.kube/config"
+        owner: "{{ ansible_user }}"
+        mode: '0600'
+
+    - name: Add Prometheus Helm repo
+      shell: |
+        helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+      args: { executable: /bin/bash }
+
+    - name: Add Elastic Helm repo
+      shell: |
+        helm repo add elastic https://helm.elastic.co
+      args: { executable: /bin/bash }
+
+    - name: Add Ingress-NGINX Helm repo
+      shell: |
+        helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+      args: { executable: /bin/bash }
+
+    - name: Add Jenkins Helm repo
+      shell: |
+        helm repo add jenkins https://charts.jenkins.io
+      args: { executable: /bin/bash }
+
+    - name: Add SonarQube Helm repo
+      shell: |
+        helm repo add sonarqube https://SonarSource.github.io/helm-chart-sonarqube
+      args: { executable: /bin/bash }
+
+    - name: Update all Helm repos
+      shell: |
+        helm repo update
+      args: { executable: /bin/bash }

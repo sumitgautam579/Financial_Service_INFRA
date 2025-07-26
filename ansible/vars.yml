@@ -1,0 +1,30 @@
+---
+# AWS region & availability
+region: "ap-south-1"
+availability_zone: "ap-south-1a"
+
+# VPC settings
+vpc_name: "FS_VPC"
+vpc_cidr: "10.0.0.0/16"
+public_subnet_cidr: "10.0.1.0/24"
+private_subnet_cidr: "10.0.2.0/24"
+
+# SSH access
+# set this to your IP (e.g. 1.2.3.4/32) so only you can SSH
+ssh_cidr: "YOUR_PUBLIC_IP/32"
+
+# Keypair & SG
+key_pair: "devops-keypair"
+ec2_security_group: "FS_SG"
+
+# EC2 instance settings
+ec2_instance_count: 1
+ec2_instance_type: "t2.medium"
+# Replace with the Ubuntu AMI ID in your region:
+ec2_ami: "ami-0f918f7e67a3323f0"
+ec2_instance_name: "Financial_service"
+
+# Tags applied to all resources
+tags:
+  Project: "Financial_service"
+  Environment: "Dev"
