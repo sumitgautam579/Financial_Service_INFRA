@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @SpringBootApplication
 @RestController
-public class AnalyticsApplication {
+public class AppHealth {
 
     public static void main(String[] args) {
-        SpringApplication.run(AnalyticsApplication.class, args);
+        SpringApplication.run(AppHealth.class, args);
     }
 
     // Health endpoint for Kubernetes/readiness probes
