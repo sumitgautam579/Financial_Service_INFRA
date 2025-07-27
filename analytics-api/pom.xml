@@ -9,7 +9,7 @@
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <version>2.7.14</version>
-    <relativePath/> <!-- lookup parent from repository -->
+    <relativePath/>
   </parent>
 
   <groupId>com.financial.service</groupId>
@@ -19,27 +19,22 @@
   <description>Durga Analytics API Service</description>
   <packaging>jar</packaging>
 
-  <!-- 2. Compile under Java 11 -->
   <properties>
     <java.version>11</java.version>
-    <maven.compiler.source>${java.version}</maven.compiler.source>
-    <maven.compiler.target>${java.version}</maven.compiler.target>
   </properties>
 
   <dependencies>
-    <!-- Spring MVC & embedded Tomcat -->
+    <!-- Web + embedded Tomcat -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
-
-    <!-- Health & metrics endpoints -->
+    <!-- Health endpoint -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
-
-    <!-- Test harness -->
+    <!-- Test support -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
@@ -50,23 +45,6 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-        <configuration>
-          <!-- Your main class -->
-          <mainClass>com.financial.service.AppHealth</mainClass>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>repackage</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <!-- 4. Explicitly bind Java 11 compilation -->
-      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.11.0</version>
@@ -74,7 +52,20 @@
           <release>${java.version}</release>
         </configuration>
       </plugin>
+
+     
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <mainClass>com.financial.service.AppHealth</mainClass>
+        </configuration>
+        <executions>
+          <execution>
+            <goals><goal>repackage</goal></goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
-
 </project>
